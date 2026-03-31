@@ -1,0 +1,87 @@
+<?php define('PAGE_TITLE', 'Chat with ' . $partner['full_name']); ?>
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card shadow-sm" style="height:80vh;display:flex;flex-direction:column">
+      <!-- Header -->
+      <div class="card-header d-flex align-items-center gap-2">
+        <a href="<?= SITE_URL ?>/index.php?route=messages" class="btn btn-sm btn-ghost me-1">
+          <i class="fa fa-arrow-left"></i>
+        </a>
+        <img src="<?= SITE_URL ?>/assets/images/uploads/avatars/<?= htmlspecialchars($partner['avatar']) ?>"
+             class="rounded-circle" width="36" height="36" style="object-fit:cover" alt="">
+        <div>
+          <div class="fw-semibold"><?= htmlspecialchars($partner['full_name']) ?></div>
+          <div class="text-muted small">@<?= htmlspecialchars($partner['username']) ?></div>
+        </div>
+      </div>
+
+      <!-- Message area -->
+      <div class="flex-grow-1 overflow-auto p-3" id="msgArea">
+        <?php
+        $lastMsgId = 0;
+        foreach ($messages as $msg) {
+          $lastMsgId = $msg['id'];
+          $isMine    = ($msg['sender_id'] == $user['id']);
+          require __DIR__ . '/_bubble.php';
+        }
+        ?>
+      </div>
+
+      <!-- Input area -->
+      <div class="card-footer d-flex gap-2">
+        <input type="text" id="msgInput" class="form-control" placeholder="Type a message…">
+        <button class="btn btn-primary" id="sendMsgBtn">
+          <i class="fa fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PARTNER_ID = <?= (int)$partner['id'] ?>;
+const SITE_URL   = '<?= SITE_URL ?>';
+let lastMsgId    = <?= $lastMsgId ?>;
+
+const msgArea  = document.getElementById('msgArea');
+const msgInput = document.getElementById('msgInput');
+const sendBtn  = document.getElementById('sendMsgBtn');
+
+function scrollBottom() { msgArea.scrollTop = msgArea.scrollHeight; }
+scrollBottom();
+
+function sendMessage() {
+  const body = msgInput.value.trim();
+  if (!body) return;
+  msgInput.value = '';
+  const fd = new FormData();
+  fd.append('receiver_id', PARTNER_ID);
+  fd.append('body', body);
+  fetch(SITE_URL + '/index.php?route=messages.send', {
+    method: 'POST', body: fd,
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+  }).then(r => r.json()).then(d => {
+    if (d.success) {
+      msgArea.insertAdjacentHTML('beforeend', d.html);
+      lastMsgId = d.msg_id;
+      scrollBottom();
+    }
+  });
+}
+
+sendBtn.addEventListener('click', sendMessage);
+msgInput.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
+
+// Poll for new messages every 3 seconds
+setInterval(() => {
+  fetch(`${SITE_URL}/index.php?route=messages.poll&with=${PARTNER_ID}&last_id=${lastMsgId}`, {
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+  }).then(r => r.json()).then(d => {
+    if (d.success && d.html) {
+      msgArea.insertAdjacentHTML('beforeend', d.html);
+      lastMsgId = d.last_id;
+      scrollBottom();
+    }
+  });
+}, 3000);
+</script>

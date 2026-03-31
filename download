@@ -1,0 +1,48 @@
+<?php
+// ============================================================
+//  Database Configuration
+//  Edit ONLY the values marked with <-- CHANGE THIS
+// ============================================================
+
+define('DB_HOST',    'localhost');
+define('DB_NAME',    'srainsti_jaguimitan');       // <-- CHANGE THIS  e.g. u12345_social
+define('DB_USER',    'srainsti_jaguimitan');       // <-- CHANGE THIS  e.g. u12345_social
+define('DB_PASS',    'jaguimitan2026');   // <-- CHANGE THIS
+define('DB_CHARSET', 'utf8mb4');
+
+// Your addon domain URL — no trailing slash
+// e.g. 'https://social.mysite.com'  or  'https://myotherdomain.com'
+define('SITE_URL',  'https://try.jaguimitan.sra-institute.net');   // <-- CHANGE THIS
+define('SITE_NAME', 'PingSpace');
+
+// Upload paths — auto-calculated, no need to change these
+define('UPLOAD_DIR', APP_ROOT . '/assets/images/uploads/');
+define('UPLOAD_URL', 'https://try.jaguimitan.sra-institute.net/assets/images/uploads/');
+
+// Max upload size: 2 MB
+define('MAX_FILE_SIZE', 2 * 1024 * 1024);
+define('ALLOWED_TYPES', ['image/jpeg', 'image/png', 'image/gif', 'image/webp']);
+
+// ============================================================
+//  Database connection — do not edit below this line
+// ============================================================
+class Database {
+    private static ?PDO $instance = null;
+
+    public static function getInstance(): PDO {
+        if (self::$instance === null) {
+            $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=' . DB_CHARSET;
+            try {
+                self::$instance = new PDO($dsn, DB_USER, DB_PASS, [
+                    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES   => false,
+                ]);
+            } catch (PDOException $e) {
+                error_log('Database connection failed: ' . $e->getMessage());
+                die('<h3>Database connection failed. Check your config/database.php settings.</h3>');
+            }
+        }
+        return self::$instance;
+    }
+}

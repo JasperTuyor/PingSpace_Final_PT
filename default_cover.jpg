@@ -1,0 +1,50 @@
+<?php define('PAGE_TITLE', 'Notifications'); ?>
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold"><i class="fa fa-bell me-1 text-primary"></i> Notifications</span>
+      </div>
+      <div class="list-group list-group-flush">
+        <?php if (empty($notifications)): ?>
+          <div class="text-center text-muted py-5">
+            <i class="fa fa-bell-slash fa-3x mb-3"></i>
+            <p>No notifications yet.</p>
+          </div>
+        <?php else: ?>
+          <?php foreach ($notifications as $n): ?>
+            <?php
+              $icon    = match($n['type']) {
+                'like'    => 'fa-heart text-danger',
+                'comment' => 'fa-comment text-info',
+                'follow'  => 'fa-user-plus text-success',
+                'message' => 'fa-envelope text-warning',
+                default   => 'fa-bell text-muted',
+              };
+              $label = match($n['type']) {
+                'like'    => 'liked your post',
+                'comment' => 'commented on your post',
+                'follow'  => 'started following you',
+                'message' => 'sent you a message',
+                default   => 'interacted with you',
+              };
+            ?>
+            <div class="list-group-item <?= !$n['is_read'] ? 'list-group-item-light' : '' ?>">
+              <div class="d-flex gap-3 align-items-center">
+                <a href="<?= SITE_URL ?>/index.php?route=profile&username=<?= urlencode($n['actor_username']) ?>">
+                  <img src="<?= SITE_URL ?>/assets/images/uploads/avatars/<?= htmlspecialchars($n['actor_avatar']) ?>"
+                       class="rounded-circle" width="40" height="40" style="object-fit:cover" alt="">
+                </a>
+                <div class="flex-grow-1">
+                  <i class="fa <?= $icon ?> me-1"></i>
+                  <strong><?= htmlspecialchars($n['actor_name']) ?></strong> <?= $label ?>
+                </div>
+                <small class="text-muted"><?= date('M j, g:i a', strtotime($n['created_at'])) ?></small>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div>
+</div>

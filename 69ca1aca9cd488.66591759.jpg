@@ -1,0 +1,9 @@
+<div class="d-flex <?= $isMine ? 'justify-content-end' : 'justify-content-start' ?> mb-2">
+  <div class="<?= $isMine ? 'bg-primary text-white' : 'bg-body-secondary' ?> rounded px-3 py-2"
+       style="max-width:70%;word-break:break-word">
+    <?= nl2br(htmlspecialchars($msg['body'])) ?>
+    <div class="text-end small mt-1 <?= $isMine ? 'text-white-50' : 'text-muted' ?>">
+      <?= date('g:i a', strtotime($msg['created_at'])) ?>
+    </div>
+  </div>
+</div>

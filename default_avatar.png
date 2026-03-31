@@ -1,0 +1,42 @@
+<?php define('PAGE_TITLE', 'Messages'); ?>
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-header fw-semibold"><i class="fa fa-envelope me-1 text-primary"></i> Messages</div>
+      <div class="list-group list-group-flush">
+        <?php if (empty($conversations)): ?>
+          <div class="text-center text-muted py-5">
+            <i class="fa fa-comment-slash fa-3x mb-3"></i>
+            <p>No messages yet.</p>
+          </div>
+        <?php else: ?>
+          <?php foreach ($conversations as $conv): ?>
+            <?php
+              $partnerId = ($conv['sender_id'] == $user['id']) ? $conv['receiver_id'] : $conv['sender_id'];
+            ?>
+            <a href="<?= SITE_URL ?>/index.php?route=messages.view&with=<?= $partnerId ?>"
+               class="list-group-item list-group-item-action d-flex gap-3 py-3">
+              <img src="<?= SITE_URL ?>/assets/images/uploads/avatars/<?= htmlspecialchars($conv['avatar']) ?>"
+                   class="rounded-circle" width="44" height="44" style="object-fit:cover" alt="">
+              <div class="flex-grow-1 overflow-hidden">
+                <div class="d-flex justify-content-between">
+                  <span class="fw-semibold"><?= htmlspecialchars($conv['full_name']) ?></span>
+                  <small class="text-muted"><?= date('M j', strtotime($conv['created_at'])) ?></small>
+                </div>
+                <div class="text-muted text-truncate small">
+                  <?php if ($conv['sender_id'] == $user['id']): ?>
+                    <span class="text-muted">You: </span>
+                  <?php endif; ?>
+                  <?= htmlspecialchars($conv['body']) ?>
+                </div>
+              </div>
+              <?php if (!empty($conv['unread_count']) && $conv['unread_count'] > 0): ?>
+                <span class="badge bg-primary rounded-pill align-self-center"><?= (int)$conv['unread_count'] ?></span>
+              <?php endif; ?>
+            </a>
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div>
+</div>

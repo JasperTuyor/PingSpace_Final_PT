@@ -1,0 +1,25 @@
+<div class="d-flex gap-2 comment-item" data-comment-id="<?= $comment['id'] ?>">
+  <a href="<?= SITE_URL ?>/index.php?route=profile&username=<?= urlencode($comment['username']) ?>">
+    <img src="<?= SITE_URL ?>/assets/images/uploads/avatars/<?= htmlspecialchars($comment['avatar']) ?>"
+         class="rounded-circle" width="28" height="28" style="object-fit:cover" alt="">
+  </a>
+  <div class="flex-grow-1">
+    <div class="bg-body-secondary rounded px-3 py-2">
+      <div class="fw-semibold small">
+        <?= htmlspecialchars($comment['full_name']) ?>
+        <span class="text-muted fw-normal">@<?= htmlspecialchars($comment['username']) ?></span>
+      </div>
+      <div class="comment-text"><?= nl2br(htmlspecialchars($comment['content'])) ?></div>
+    </div>
+    <div class="d-flex gap-2 mt-1">
+      <span class="text-muted small"><?= date('M j g:i a', strtotime($comment['created_at'])) ?></span>
+      <?php if ((int)$comment['user_id'] === (int)$_SESSION['user_id']): ?>
+      <button class="btn btn-link btn-sm p-0 text-muted edit-comment-btn"
+              data-comment-id="<?= $comment['id'] ?>"
+              data-content="<?= htmlspecialchars($comment['content'], ENT_QUOTES) ?>">Edit</button>
+      <button class="btn btn-link btn-sm p-0 text-danger delete-comment-btn"
+              data-comment-id="<?= $comment['id'] ?>">Delete</button>
+      <?php endif; ?>
+    </div>
+  </div>
+</div>
